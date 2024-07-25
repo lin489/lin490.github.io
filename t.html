@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" style="overflow:hidden;">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    <title>test</title>
+    <style>
+        body {
+            background: #d9deea;
+        }
+
+        #rightBtn_1{
+            position: relative;
+            width: 35px;
+            height: 16px;
+            background-repeat: no-repeat;
+            background-size: 200% 100%;
+            background-position: 100% 0;
+            border-radius: 16px;
+            box-shadow:
+                0 -3px 4px #999,
+                inset 0 3px 5px #333,
+                0 4px 4px #ffe,
+                inset 0 -3px 5px #ddd;
+            cursor: pointer;
+            overflow: hidden;
+            transition: .5s all;
+
+            &::before,
+            &::after {
+                content: "";
+                position: absolute;
+                transition: .5s all;
+            }
+            &::before {
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                background: #cbcdda;
+                inset: 1.5px;
+                box-shadow:
+                    0 0 5px #333,
+                    inset 2px 2px 3px #f8f4e4,
+                    inset -2px -2px 3px #665613;
+                z-index: 1;
+
+            }
+
+            &::after {
+                width: 15px;
+                height: 15px;
+                inset: 2px;
+                transform: translate(16px);
+                content: 'off';
+            }
+        }
+        #rightBtn_1:hover::before {
+            filter: contrast(90%) brightness(110%);
+            scale: 1.05;
+        }
+
+        #rightBtn_1.active {
+            background-position: 0 0;
+
+            &::before {
+                translate: 16px;
+                background:
+                    radial-gradient(#e9cb50, #e9cb50);
+            }
+
+            &::after {
+                transform: translate(2px);
+                content: 'on';
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div id="rightBtn_1" style="font-size: 10px;">
+    </div>
+    <script>
+        const btn = document.querySelector('#rightBtn_1');
+        btn.addEventListener('click', (e) => {
+            btn.setAttribute('class', btn.getAttribute("class") === "active" ? "" : "active");
+            console.log(btn.getAttribute("class"))
+        });
+    </script>
+</body>
+
+</html>

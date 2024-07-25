@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en" style="overflow:hidden; font-size:62.5%">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>地块管理系统</title>
+  <link href="Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <link href="layui/css/layui.css" rel="stylesheet" />
+  <script src="Build/Cesium/Cesium.js"></script>
+  <script src="layui/layui.js"></script>
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.5.1.min.js"></script>
+  <script src="Scripts/Extensions/Functions/CesiumMeasure.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+
+  <script src="Scripts/Extensions/Plug-In/html2canvas.js"></script>
+  <script src="Scripts/Extensions/Functions/Recording.js"></script>
+  <script src="Scripts/PropertiesTable/propertiesTable.js"></script>
+  <script src="Scripts/Data/EditData/AddShp.js"></script>
+  <script src="Scripts/Data/EditData/SelectShp.js"></script>
+
+  <script src="Scripts/UI/Echart/Echart.js"></script>
+  <script src="Scripts/UI/Echart/EchartTheme.js"></script>
+
+
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+
+    }
+
+
+    #menu {
+      float: left;
+      width: 200px;
+      height: calc(100% - 50px);
+      overflow: hidden;
+      background-color: rgb(85, 25, 61);
+      opacity: 0.8;
+      position: fixed;
+      left: 0;
+      z-index: 10;
+    }
+
+    #navigationBar {
+      float: left;
+      width: 100%;
+      height: 60px;
+      top: 0;
+      position: fixed;
+      opacity: 1;
+      z-index: 100;
+    }
+
+    .navigationBar_toolkit {
+      top: 60px;
+      height: 100px;
+      width: 100%;
+      position: fixed;
+      background-color: #222d4b;
+      opacity: 1;
+      z-index: 10;
+    }
+
+    #bottomBar {
+      width: calc(100% - 0px);
+      height: 50px;
+      bottom: 0;
+      opacity: 1;
+      position: fixed;
+    }
+
+    #cesium {
+      float: left;
+      width: calc(100% - 0px);
+      height: calc(100% - 0px);
+      margin: 0;
+    }
+
+    #cesiumIcon {
+      float: left;
+      width: 200px;
+      height: 100%;
+    }
+
+    #cesiumContainer0 {
+      float: left;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+
+    }
+
+    #cesiumContainer1 {
+      float: left;
+      width: 0%;
+      height: 100%;
+      margin: 0;
+    }
+
+    #cesiumContainer2 {
+      float: left;
+      width: 0%;
+      height: 100%;
+      margin: 0;
+    }
+
+    #recordPanel {
+      position: absolute;
+      top: calc(100% - 168px);
+      left: 308px;
+      width: 76px;
+      background-color: #ffffff86;
+      box-shadow: inset 1px 2px 2px 0 #f2f6fc;
+      color: white
+    }
+
+    .measureBtn {
+      width: 76px;
+      height: 30px;
+      margin: 5px;
+      padding: 5px;
+      background-color: #2c3f60;
+      border-radius: 4px;
+    }
+
+    .measureBtnText {
+      position: relative;
+      color: #a0bbe6;
+      top: -28px;
+      left: 40px;
+    }
+
+    #measureCloseB {
+      position: absolute;
+      top: 2px;
+      right: 0px;
+      width: 15px;
+      height: 15px;
+      margin: 0px;
+      border-top: 0px;
+      padding: 0px;
+      float: right;
+    }
+
+    #recordCloseB {
+      position: absolute;
+      top: 2px;
+      right: 0px;
+      width: 15px;
+      height: 15px;
+      margin: 0px;
+      border-top: 0px;
+      padding: 0px;
+      float: right;
+    }
+
+    #flyToPos {
+      position: absolute;
+      top: calc(100% - 266px);
+      left: 206px;
+      background-color: #ffffff86;
+      box-shadow: inset 1px 2px 2px 0 #f2f6fc;
+      color: white;
+
+    }
+
+    .jwd {
+      position: absolute;
+      top: 92%;
+      float: left;
+      color: chartreuse;
+    }
+
+    #recordingIcon {
+      float: left;
+      position: absolute;
+      top: 6%;
+      left: 1%;
+    }
+
+    #hierarchyPanel {
+      position: fixed;
+      width: 300px;
+      height: 540px;
+      left: 30px;
+      top: 200px;
+      opacity: 0.8;
+      background-color: #154149;
+    }
+
+    .infoText {
+      font-size: 1.6rem;
+      color: white;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .layui-tree-txt {
+      color: white;
+
+    }
+
+    .cesium-performanceDisplay-defaultContainer {
+      z-index: 100;
+    }
+
+    .cesium-viewer-toolbar {
+      z-index: 100;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background-color: #222d4b;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #526ea7;
+    }
+
+    .layui-table-hover {
+      background-color: #3a8291;
+    }
+
+    .layui-table td {
+      border-right: 0px;
+      border-color: rgb(60, 74, 110);
+    }
+
+    .layui-laypage a[data-page] {
+      color: #c69797;
+    }
+
+    .layui-border-box {
+      border: 0px;
+
+    }
+
+    span {
+      position: relative;
+      /* 或者position: absolute */
+      z-index: 9999;
+    }
+
+    #nvBar {
+      position: relative;
+      width: 2, 189.47vh;
+      height: 100%;
+      opacity: 1;
+      z-index: 100;
+      background-color: #222d4b;
+    }
+
+    .layui-btn {
+      background-color: #55506e;
+    }
+
+    .Panel_Left {
+      position: fixed;
+      width: 25%;
+      height: 90%;
+      left: 0.5%;
+      top: 8.1%;
+      background-color: #293453a4;
+      z-index: 100;
+    }
+
+    .Panel_Left_Subtext {
+      position: absolute;
+      left: 0%;
+      padding-left: 8%;
+      font-style: italic;
+      font-size: 2.0rem;
+      color: #dffffb;
+    }
+  </style>
+
+</head>
+
+<body>
+  <!-- Cesium主窗口 -->
+  <div id="cesium">
+    <div id="cesiumContainer0" class="viewer">
+    </div>
+  </div>
+  <!-- cesium核心及UI -->
+  <script>
+    // fullScreen();
+    //CesiumToken
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiMWIxMzA5Zi01YjJlLTQwMWYtYTU5ZS1kMGNjNmM4MGM5MGUiLCJpZCI6OTAxMDAsImlhdCI6MTY1NjY0NTc2MX0.iHMlyEF3E0ticuqktPkYWpsyyqPXZWK-lTUfXxCiTv8';
+    //天地图
+    const esri = new Cesium.ArcGisMapServerImageryProvider({
+      url: 'https://services.arcgisonline.com/ArcGis/rest/services/World_Imagery/MapServer'
+    })
+    let clampToGround = true
+
+    //viewer0创建并初始化
+    const viewer0 = new Cesium.Viewer('cesiumContainer0', {
+      shouldAnimate: true,
+      vrButton: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      baseLayerPicker: false,
+      navigationHelpButton: false,
+      animation: false,
+      timeline: false,
+      fullscreenButton: false,
+      infoBox: false,
+      shadows: false,
+      selectionIndicator: false,
+      //scene3DOnly如果设置为true，则所有几何图形以3D模式绘制以节约GPU资源    
+      scene3DOnly: false,
+
+      contextOptions: {
+        //cesium状态下允许canvas转图片convertToImage
+        webgl: {
+          alpha: true,
+          depth: false,
+          stencil: true,
+          antialias: true,
+          premultipliedAlpha: true,
+          preserveDrawingBuffer: true,
+          failIfMajorPerformanceCaveat: true
+        },
+        allowTextureFilterAnisotropic: true
+      },
+    });
+
+    //开启viewer0底图地形
+    // viewer0.terrainProvider = Cesium.createWorldTerrain({
+    //   requestVertexNormals: true     // 开启地形光照
+    // });
+
+    //关闭viewer0太阳、月亮、天空盒
+    viewer0.scene.sun.show = false;
+    viewer0.scene.moon.show = false;
+    viewer0.scene.skyBox.show = false;
+
+    //帧数显示
+    viewer0.scene.debugShowFramesPerSecond = false;
+
+    //测量功能加载
+    let measure0 = new Cesium.Measure(viewer0);
+
+    //移除Cesium默认左键双击事件
+    viewer0.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
+    //黑色遮罩
+    // var coffeeBeltRectangle = Cesium.Rectangle.fromDegrees(124.934696,40.805546,126.934696,43.085546);
+    // viewer0.scene.globe.cartographicLimitRectangle = coffeeBeltRectangle;
+
+
+    //状态参数
+    let flyswtich = true;
+    let recordingSwitch = true;
+    let viewerState = 1;
+    var fullScreenState = false;
+
+    //高清修复
+    viewer0.scene.fxaa = false
+    viewer0.scene.postProcessStages.fxaa.enabled = false;
+    var supportsImageRenderingPixelated = viewer0.cesiumWidget._supportsImageRenderingPixelated;
+    if (supportsImageRenderingPixelated) {
+      var vtxf_dpr = window.devicePixelRatio;
+      while (vtxf_dpr >= 2.0) { vtxf_dpr /= 2.0; }
+      viewer0.resolutionScale = vtxf_dpr;
+    }
+
+    //Cesium窗口尺寸
+    var winWidth;
+    var winHeight;
+
+    //左下角Credit信息去除
+    document.querySelectorAll(".cesium-widget-credits").forEach(credits => {
+      credits.style.display = 'none';
+    });
+
+    viewer0.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(125.974696, 41.765546, 423000),
+      orientation: {
+        heading: Cesium.Math.toRadians(0), // 水平旋转  -正北方向
+        pitch: Cesium.Math.toRadians(-90), // 上下旋转  --俯视朝向
+        roll: 0 // 视口翻滚角度
+      }
+    });
+  </script>
+
+
+  <!-- 取点坐标功能 -->
+  <!-- <script>
+      //取点坐标功能
+      let getPosHandler = new Cesium.ScreenSpaceEventHandler(viewer0.scene.canvas);
+      //使用时将getPosTrigger激活，左键调用。
+      var getPosTrigger = false;
+      getPosHandler.setInputAction(function (event) {
+        if (getPosTrigger) {
+          let ray = viewer0.camera.getPickRay(event.position);
+          let cartesian = viewer0.scene.globe.pick(ray, viewer0.scene);
+          let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+          let _longitude = Cesium.Math.toDegrees(cartographic.longitude);
+          let _latitude = Cesium.Math.toDegrees(cartographic.latitude);
+          let _height = cartographic.height;
+          let coordinate = {
+            longitude: Number(_longitude.toFixed(6)),
+            latitude: Number(_latitude.toFixed(6)),
+            altitude: Number(_height.toFixed(2))
+          };
+          layer.msg('经度：' + coordinate.longitude + ', ' + '纬度：' + coordinate.latitude + ',' + '海拔：' + coordinate.altitude + '(已复制到剪切板)');
+          const input = document.createElement('input');
+          input.setAttribute('readonly', 'readonly');
+          input.value = '经度：' + coordinate.longitude + ',' + '纬度：' + coordinate.latitude + ',' + '海拔：' + coordinate.altitude;
+          document.body.appendChild(input);
+          input.setSelectionRange(0, 9999);
+          input.select();
+          document.execCommand('copy');
+          document.body.removeChild(input);
+          getPosTrigger = false;
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+      //右下角经纬度数值更新
+      let longitudePanel = document.getElementById('longitude-panel');
+      let latitudePanel = document.getElementById('latitude-panel');
+      let heightPanel = document.getElementById('height-panel');
+      viewer0.camera.moveEnd.addEventListener(() => {
+        let cameraPosition = viewer0.scene.camera.positionCartographic;
+        longitudePanel.innerText = Cesium.Math.toDegrees(cameraPosition.longitude).toFixed(6);
+        latitudePanel.innerText = Cesium.Math.toDegrees(cameraPosition.latitude).toFixed(6);
+        heightPanel.innerText = cameraPosition.height.toFixed(4);
+      });
+
+
+    </script> -->
+
+  <!-- viewer绑定和其他功能 -->
+  <script>
+    //测量面板按钮触发
+    $('.layui-card-body button').on('click', function () {
+      let text = $(this).text()
+      if (text) {
+        switch (text) {
+          case '距离':
+            clampToGround = true;
+            measure0.drawLineMeasureGraphics({
+              clampToGround: clampToGround,
+              callback: () => { }
+            });
+            break;
+          case '面积':
+            measure0.drawAreaMeasureGraphics({
+              clampToGround: true,
+              callback: () => { }
+            });
+            break;
+          case '三角':
+            measure0.drawTrianglesMeasureGraphics({
+              callback: () => { }
+            });
+            break;
+          case '清除':
+            console.log(measure0._drawLayer.entities);
+            measure0._drawLayer.entities.removeAll();
+            break;
+        }
+      }
+    })
+
+    /**
+     *  距离测量
+     */
+    function MeasureDistance() {
+      clampToGround = true;
+      measure0.drawLineMeasureGraphics({
+        clampToGround: clampToGround,
+        callback: () => { }
+      });
+    }
+    /**
+     *  面积测量
+     */
+    function MeasureArea() {
+      measure0.drawAreaMeasureGraphics({
+        clampToGround: true,
+        callback: () => { }
+      });
+
+    }
+    /**
+     *  三角测量 
+     */
+    function MeasureTriA() {
+      measure0.drawTrianglesMeasureGraphics({
+        callback: () => { }
+      });
+
+    }
+    function MeasureDelete0(obj) {
+      obj.src = 'Img/切图/删除@2x.png';
+    }
+    function MeasureDelete1(obj) {
+      // console.log(measure0._drawLayer.entities);
+      measure0._drawLayer.entities.removeAll();
+      obj.src = 'Img/切图/组 2447@2x.png';
+    }
+
+
+    $('#measureCloseB').on('click', function () {
+      document.getElementById("measure").style.display = 'none';
+
+    })
+    $('#recordCloseB').on('click', function () {
+      document.getElementById("recordPanel").style.display = 'none';
+
+    })
+    $('#flyToPosCloseB').on('click', function () {
+      document.getElementById("flyToPos").style.display = 'none';
+    })
+    $('#UIPanelCloseB').on('click', function () {
+      document.getElementById("UIPanel").style.display = 'none';
+    })
+    var v0 = document.getElementById("cesiumContainer0");
+
+    //Primitive Polyline加载 （废弃）
+    function addDataToGlobe_Polyline(features) {
+      for (let i = 0; i < features.length; i++) {
+        const primitive = new Cesium.GroundPolylinePrimitive({//贴地primitive线
+          geometryInstances: new Cesium.GeometryInstance({
+            geometry: new Cesium.GroundPolylineGeometry({//贴地线几何
+              positions: Cesium.Cartesian3.fromDegreesArray(features[i].coordinates.toString().split(','))
+            })
+          }),
+          appearance: new Cesium.PolylineMaterialAppearance({
+            material: Cesium.Material.fromType('Color', {
+              color: Cesium.Color.fromRandom(),
+            })
+          }),
+          asynchronous: false,
+        })
+        viewer0.scene.primitives.add(primitive)
+      }
+    }
+    //量测面板显示
+    function measureActive() {
+      document.getElementById("measure").style.display = 'block';
+    }
+
+    //全屏
+    function fullScreen() {
+      console.log(fullScreenState);
+      if (fullScreenState == false) {
+        var el = document.documentElement;
+        var rfs = el.requestFullScreen || el.webkitRequestFullScreen ||
+          el.mozRequestFullScreen || el.msRequestFullScreen;
+        if (typeof rfs != "undefined" && rfs) {
+          rfs.call(el);
+        } else if (typeof window.ActiveXObject != "undefined") {
+          var wscript = new ActiveXObject("WScript.Shell");
+          if (wscript != null) {
+            wscript.SendKeys("{F11}");
+          }
+        }
+        fullScreenState = true;
+      } else {
+        exitFullScreen();
+        fullScreenState = false;
+      }
+    }
+    //退出全屏
+    function exitFullScreen(el) {
+      var el = document
+      var cfs = el.cancelFullScreen || el.mozCancelFullScreen || el.msExitFullscreen || el.webkitExitFullscreen ||
+        el.exitFullscreen,
+        wscript
+      if (cfs) {
+        cfs.call(el);
+        return;
+      } else if (typeof window.ActiveXObject !== "undefined") {
+        var wscript = new ActiveXObject("WScript.Shell");
+        if (wscript != null) {
+          wscript.SendKeys("{F11}");
+        }
+      } else {
+        alert('浏览器不支持全屏API或已被禁用')
+      }
+    }
+    //前往指定坐标
+    function flyToByPos(longitude, latitude) {
+      viewer0.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 5000),
+        orientation: {
+          heading: Cesium.Math.toRadians(0), // 水平旋转  -正北方向
+          pitch: Cesium.Math.toRadians(-90), // 上下旋转  --俯视朝向
+          roll: 0 // 视口翻滚角度
+        }
+      });
+    }
+    //获取某点坐标
+    function getPointCoordinate() {
+      layer.msg('左键点击屏幕上任意一点获取经纬度');
+      getPosTrigger = true;
+    }
+    //UI-相关信息按钮绑定方法
+    function relevantInformation() {
+      layer.msg('基于 Cesium 的田西高速公路多数据三维显示平台 v1.1.2');
+    }
+  </script>
+
+  <!-- Entity拾取 -->
+  <script src="Scripts/Data/EditData/EntityPick.js"></script>
+  <script src="https://cdn.bootcss.com/FileSaver.js/2014-11-29/FileSaver.js"></script>
+  <script src="Scripts/UI/HierarchyPanel.js"></script>
+
+  <!-- 数据加载 -->
+  <script src="Scripts/Data/LoadData/GlobalData/DataLoad.js"></script>
+  <!-- UI加载 -->
+  <!-- <script src="Scripts/UI/UI.js"></script> -->
+  <!-- 击穿事件监听 -->
+  <script src="Scripts/Data/LoadData/ZoomIn/ZoomInEvent.js"></script>
+  <!-- 击穿事件功能接收 -->
+  <script src="Scripts/Data/LoadData/ZoomIn/LoadZoomInShp.js"></script>
+
+
+
+  <!-- 数据处理部分 -->
+  <script>
+    //wms参数
+    var wmsParameters = {
+      service: 'WMS',
+      format: 'image/png',
+      transparent: true,
+      styles: '',
+      cql_filter: ""
+    }
+
+    //val  0: 宜参地图斑
+    var wms_suitableForest_Best
+    var wms_suitableForest_Good
+    var wms_suitableForest_Normal
+    var wms_suitableGarden
+
+    //val  1: 已种植图斑
+    var wms_plantedForest
+    var wms_plantedGarden
+
+    //val  2: 未种植图斑
+    var wms_unplantedForest
+    var wms_unplantedGarden
+
+    //val  3: 林下参分级分析图斑
+    var wms_plantedForest_Best
+    var wms_plantedForest_Good
+    var wms_plantedForest_Normal
+
+    var wms_forestLevel9_1
+    var wms_forestLevel9_2
+    var wms_forestLevel9_3
+    var wms_forestLevel9_4
+    var wms_forestLevel9_5
+    var wms_forestLevel9_6
+    var wms_forestLevel9_7
+    var wms_forestLevel9_8
+    var wms_forestLevel9_9
+
+    //val  4: 园参未来五年种植图斑
+    var wms_futureGarden_2025
+    var wms_futureGarden_2026
+    var wms_futureGarden_2027
+    var wms_futureGarden_2028
+    var wms_futureGarden_2029
+
+
+
+
+    var legend_Check00 = false, legend_Check01 = false, legend_Check02 = false, legend_Check03 = false, legend_Check04 = false
+    window.addEventListener('message', (e) => {
+      console.log(e)
+      switch (e.data.eventName) {
+        case 'legend':
+          // val  0: 宜参地图斑, 1: 已种植图斑, 2: 未种植图斑, 3: 林下参分级分析图斑, 4: 园参未来五年种植图斑
+          HideAllLayer()
+          switch (e.data.params.val) {
+            case 0:
+              if (!legend_Check00) {
+                console.log("接收到宜参地图斑选中事件")
+                 
+                //业务逻辑
+
+                //林下参宜参地通天
+                if (wms_suitableForest_Best == null) {
+                  //加载具有指定参数的wms图层
+                  wmsParameters.styles = 'renshen:林下参宜参地'
+                  wmsParameters.cql_filter = "level_3 = '通天'"
+                  wms_suitableForest_Best = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_suitableForest_Best.show = true;
+                }
+
+                //林下参宜参地通地
+                if (wms_suitableForest_Good == null) {
+                  //加载具有指定参数的wms图层
+                  wmsParameters.styles = 'renshen:林下参宜参地'
+                  wmsParameters.cql_filter = "level_3 = '通地'"
+                  wms_suitableForest_Good = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_suitableForest_Good.show = true;
+                }
+
+                //林下参宜参地通人
+                if (wms_suitableForest_Normal == null) {
+                  //加载具有指定参数的wms图层
+                  wmsParameters.styles = 'renshen:林下参宜参地'
+                  wmsParameters.cql_filter = "level_3 = '通人'"
+                  wms_suitableForest_Normal = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_suitableForest_Normal.show = true;
+                }
+
+                //园参宜参地
+                if (wms_suitableGarden == null) {
+                  //加载具有指定参数的wms图层
+                  wmsParameters.styles = 'renshen:园参宜参地'
+                  wmsParameters.cql_filter = ""
+                  wms_suitableGarden = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:园参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_suitableGarden.show = true;
+                }
+
+              } else {
+                console.log("接收到宜参地图斑取消选中事件")
+                 
+                //业务逻辑
+                wms_suitableForest_Best.show = false;
+                wms_suitableForest_Good.show = false;
+                wms_suitableForest_Normal.show = false;
+                wms_suitableGarden.show = false;
+              }
+              legend_Check00 = !legend_Check00
+              break;
+            case 1:
+              if (!legend_Check01) {
+                console.log("接收到已种植图斑选中事件")
+                 
+
+                //林下参已种植
+                if (wms_plantedForest == null) {
+                  wmsParameters.styles = 'renshen:林下参宜参地'
+                  wmsParameters.cql_filter = "plantedState = '已种植'"
+                  wms_plantedForest = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_plantedForest.show = true
+                }
+                //园参已种植
+                if (wms_plantedGarden == null) {
+                  wmsParameters.styles = 'renshen:园参宜参地'
+                  wmsParameters.cql_filter = "plantedState = '已种植'"
+                  wms_plantedGarden = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:园参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_plantedGarden.show = true
+                }
+
+              } else {
+                console.log("接收到已种植图斑取消选中事件")
+                 
+                wms_plantedForest.show = false
+                wms_plantedGarden.show = false
+              }
+              legend_Check01 = !legend_Check01
+              break;
+            case 2:
+              if (!legend_Check02) {
+                console.log("接收到未种植图斑选中事件")
+                 
+
+                //林下参未种植
+                if (wms_unplantedForest == null) {
+                  wmsParameters.styles = 'renshen:林下参宜参地'
+                  wmsParameters.cql_filter = "plantedState = '未种植'"
+                  wms_unplantedForest = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_unplantedForest.show = true
+                }
+                //园参未种植
+                if (wms_unplantedGarden == null) {
+                  wmsParameters.styles = 'renshen:园参宜参地'
+                  wmsParameters.cql_filter = "plantedState = '未种植'"
+                  wms_unplantedGarden = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:园参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_unplantedGarden.show = true
+                }
+              } else {
+                console.log("接收到为种植图斑取消选中事件")
+                 
+                wms_unplantedForest.show = false
+                wms_unplantedGarden.show = false
+              }
+              legend_Check02 = !legend_Check02
+              break;
+            case 3:
+              if (!legend_Check03) {
+                console.log("接收到林下参分级分析图斑选中事件")
+                 
+
+                if (wms_forestLevel9_1 == null) {
+                  wmsParameters.styles = 'renshen:通天'
+                  wmsParameters.cql_filter = "level_9 = '通天甲等'"
+                  wms_forestLevel9_1 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_1.show = true;
+                }
+                if (wms_forestLevel9_2 == null) {
+                  wmsParameters.styles = 'renshen:通天'
+                  wmsParameters.cql_filter = "level_9 = '通天乙等'"
+                  wms_forestLevel9_2 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_2.show = true;
+                }
+                if (wms_forestLevel9_3 == null) {
+                  wmsParameters.styles = 'renshen:通天'
+                  wmsParameters.cql_filter = "level_9 = '通天丙等'"
+                  wms_forestLevel9_3 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_3.show = true;
+                }
+                if (wms_forestLevel9_4 == null) {
+                  wmsParameters.styles = 'renshen:通地'
+                  wmsParameters.cql_filter = "level_9 = '通地甲等'"
+                  wms_forestLevel9_4 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_4.show = true;
+                }
+                if (wms_forestLevel9_5 == null) {
+                  wmsParameters.styles = 'renshen:通地'
+                  wmsParameters.cql_filter = "level_9 = '通地乙等'"
+                  wms_forestLevel9_5 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_5.show = true;
+                }
+                if (wms_forestLevel9_6 == null) {
+                  wmsParameters.styles = 'renshen:通地'
+                  wmsParameters.cql_filter = "level_9 = '通地丙等'"
+                  wms_forestLevel9_6 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_6.show = true;
+                }
+                if (wms_forestLevel9_7 == null) {
+                  wmsParameters.styles = 'renshen:通人'
+                  wmsParameters.cql_filter = "level_9 = '通人甲等'"
+                  wms_forestLevel9_7 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_7.show = true;
+                }
+                if (wms_forestLevel9_8 == null) {
+                  wmsParameters.styles = 'renshen:通人'
+                  wmsParameters.cql_filter = "level_9 = '通人乙等'"
+                  wms_forestLevel9_8 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_8.show = true;
+                }
+                if (wms_forestLevel9_9 == null) {
+                  wmsParameters.styles = 'renshen:通人'
+                  wmsParameters.cql_filter = "level_9 = '通人丙等'"
+                  wms_forestLevel9_9 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:林下参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_forestLevel9_9.show = true;
+                }
+
+              } else {
+                console.log("接收到林下参分级分析取消选中事件")
+                 
+
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              }
+              legend_Check03 = !legend_Check03
+              break;
+            case 4:
+              if (!legend_Check04) {
+                console.log("接收到园参未来五年图斑选中事件")
+                 
+
+                if (wms_futureGarden_2025 == null) {
+                  wmsParameters.styles = 'renshen:2025年'
+                  wmsParameters.cql_filter = "future = '2025'"
+                  wms_futureGarden_2025 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:园参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_futureGarden_2025.show = true
+                }
+                if (wms_futureGarden_2026 == null) {
+                  wmsParameters.styles = 'renshen:2026年'
+                  wmsParameters.cql_filter = "future = '2026'"
+                  wms_futureGarden_2026 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:园参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_futureGarden_2026.show = true
+                }
+                if (wms_futureGarden_2027 == null) {
+                  wmsParameters.styles = 'renshen:2027年'
+                  wmsParameters.cql_filter = "future = '2027'"
+                  wms_futureGarden_2027 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:园参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_futureGarden_2027.show = true
+                }
+                if (wms_futureGarden_2028 == null) {
+                  wmsParameters.styles = 'renshen:2028年'
+                  wmsParameters.cql_filter = "future = '2028'"
+                  wms_futureGarden_2028 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:园参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_futureGarden_2028.show = true
+                }
+                if (wms_futureGarden_2029 == null) {
+                  wmsParameters.styles = 'renshen:2029年'
+                  wmsParameters.cql_filter = "future = '2029'"
+                  wms_futureGarden_2029 = viewer0.imageryLayers.addImageryProvider(new Cesium.WebMapServiceImageryProvider({
+                    url: geoserverURL + "/geoserver/renshen/wms",
+                    layers: 'renshen:园参',
+                    parameters: wmsParameters
+                  }));
+                } else {
+                  wms_futureGarden_2029.show = true
+                }
+
+              } else {
+                console.log("接收到园参未来五年种植图斑取消选中事件")
+                 
+
+                wms_futureGarden_2025.show = false
+                wms_futureGarden_2026.show = false
+                wms_futureGarden_2027.show = false
+                wms_futureGarden_2028.show = false
+                wms_futureGarden_2029.show = false
+              }
+              legend_Check04 = !legend_Check04
+              break;
+          }
+          break;
+        case 'gradingAnalysis':
+          // name  通天, 通地, 通人, 通天甲等, 通天乙等, 通天丙等, 通地甲等, 通地乙等, 通地丙等, 通人甲等, 通人乙等, 通人丙等
+          switch (e.data.params.name) {
+            case '通天':
+              console.log("接收到“通天”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = true;
+                wms_forestLevel9_2.show = true;
+                wms_forestLevel9_3.show = true;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+
+              break;
+            case '通地':
+              console.log("接收到“通地”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = true;
+                wms_forestLevel9_5.show = true;
+                wms_forestLevel9_6.show = true;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+
+              break;
+            case '通人':
+              console.log("接收到“通人”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = true;
+                wms_forestLevel9_8.show = true;
+                wms_forestLevel9_9.show = true;
+              } catch { }
+
+              break;
+            case '通天甲等':
+              console.log("接收到“通天甲等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = true;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+
+              break;
+            case '通天乙等':
+              console.log("接收到“通天乙等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = true;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+              break;
+            case '通天丙等':
+              console.log("接收到“通天丙等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = true;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+              break;
+            case '通地甲等':
+              console.log("接收到“通地甲等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = true;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+              break;
+            case '通地乙等':
+              console.log("接收到“通地乙等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = true;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+              break;
+            case '通地丙等':
+              console.log("接收到“通地丙等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = true;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+              break;
+            case '通人甲等':
+              console.log("接收到“通人甲等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = true;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+              break;
+            case '通人乙等':
+              console.log("接收到“通人乙等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = true;
+                wms_forestLevel9_9.show = false;
+              } catch { }
+              break;
+            case '通人丙等':
+              console.log("接收到“通人丙等”点击事件")
+               
+              try {
+                wms_forestLevel9_1.show = false;
+                wms_forestLevel9_2.show = false;
+                wms_forestLevel9_3.show = false;
+                wms_forestLevel9_4.show = false;
+                wms_forestLevel9_5.show = false;
+                wms_forestLevel9_6.show = false;
+                wms_forestLevel9_7.show = false;
+                wms_forestLevel9_8.show = false;
+                wms_forestLevel9_9.show = true;
+              } catch { }
+              break;
+          }
+          break;
+        case 'planted':
+          // name  2025年, 2026年, 2027年, 2028年, 2029年, 2030年
+          switch (e.data.params.name) {
+            case '2025年':
+              console.log("接收到“2025年可种植”点击事件")
+               
+              try {
+                wms_futureGarden_2025.show = true
+                wms_futureGarden_2026.show = false
+                wms_futureGarden_2027.show = false
+                wms_futureGarden_2028.show = false
+                wms_futureGarden_2029.show = false
+              } catch { }
+
+              break;
+            case '2026年':
+              console.log("接收到“2026年可种植”点击事件")
+               
+              try {
+                wms_futureGarden_2025.show = false
+                wms_futureGarden_2026.show = true
+                wms_futureGarden_2027.show = false
+                wms_futureGarden_2028.show = false
+                wms_futureGarden_2029.show = false
+              } catch { }
+
+              break;
+            case '2027年':
+              console.log("接收到“2027年可种植”点击事件")
+               
+              try {
+                wms_futureGarden_2025.show = false
+                wms_futureGarden_2026.show = false
+                wms_futureGarden_2027.show = true
+                wms_futureGarden_2028.show = false
+                wms_futureGarden_2029.show = false
+              } catch { }
+
+              break;
+            case '2028年':
+              console.log("接收到“2028年可种植”点击事件")
+               
+              try {
+                wms_futureGarden_2025.show = false
+                wms_futureGarden_2026.show = false
+                wms_futureGarden_2027.show = false
+                wms_futureGarden_2028.show = true
+                wms_futureGarden_2029.show = false
+              } catch { }
+
+              break;
+            case '2029年':
+              console.log("接收到“2029年可种植”点击事件")
+               
+              try {
+                wms_futureGarden_2025.show = false
+                wms_futureGarden_2026.show = false
+                wms_futureGarden_2027.show = false
+                wms_futureGarden_2028.show = false
+                wms_futureGarden_2029.show = true
+              } catch { }
+
+              break;
+            default:
+              console.log('没有此数据')
+              break;
+          }
+          break;
+        case 'suitableArea':
+          switch (e.data.params.name) {
+            case '林下参':
+              try {
+                  wms_suitableForest_Best.show = true
+                  wms_suitableForest_Good.show = true
+                  wms_suitableForest_Normal.show = true
+                  wms_suitableGarden.show = false
+              }
+              catch { }
+              break;
+            case '园参':
+            try {
+                  wms_suitableForest_Best.show = false
+                  wms_suitableForest_Good.show = false
+                  wms_suitableForest_Normal.show = false
+                  wms_suitableGarden.show = true
+              }
+              catch { }
+              break;
+          }
+          break;
+        case 'plantedArea':
+          switch (e.data.params.name) {
+            case '林下参':
+            try {
+              wms_plantedForest.show = true
+              wms_plantedGarden.show = false
+              }
+              catch { }
+              break;
+            case '园参':
+            try {
+              wms_plantedForest.show = false
+              wms_plantedGarden.show = true
+              }
+              catch { }
+              break;
+          }
+          break;
+        case 'notPlantedArea':
+          switch (e.data.params.name) {
+            case '林下参':
+            wms_unplantedForest.show = true
+            wms_unplantedGarden.show = false
+              break;
+            case '园参':
+            wms_unplantedForest.show = false
+            wms_unplantedGarden.show = true
+              break;
+          }
+          break;
+      }
+    })
+
+    // LoadAllRenShenShp()
+
+
+    // ShowIframeShp()
+
+    function HideAllLayer() {
+      HideLayer(wms_suitableForest_Best)
+      HideLayer(wms_suitableForest_Good)
+      HideLayer(wms_suitableForest_Normal)
+      HideLayer(wms_suitableGarden)
+      HideLayer(wms_plantedForest)
+      HideLayer(wms_plantedGarden)
+      HideLayer(wms_unplantedForest)
+      HideLayer(wms_unplantedGarden)
+      HideLayer(wms_plantedForest_Best)
+      HideLayer(wms_plantedForest_Good)
+      HideLayer(wms_plantedForest_Normal)
+      HideLayer(wms_futureGarden_2025)
+      HideLayer(wms_futureGarden_2026)
+      HideLayer(wms_futureGarden_2027)
+      HideLayer(wms_futureGarden_2028)
+      HideLayer(wms_futureGarden_2029)
+    }
+    function HideLayer(layer) {
+      if (layer != null) {
+        layer.show = false
+      }
+    }
+
+    function ShowIframeShp() {
+      var timer = 0
+      viewer0.dataSources._dataSources.forEach(datasource => {
+        console.log(datasource)
+        if (datasource._name == 'geojson/林下参.geojson') {
+          datasource.show = true;
+          entities = datasource.entities.values;
+          entities.forEach(entity => {
+            entity.show = true;
+          })
+          console.log(1111111)
+          if (datasource.show) {
+            timer += 1
+          }
+        }
+        if (datasource._name == 'geojson/园参.geojson') {
+          datasource.show = true;
+          entities = datasource.entities.values;
+          entities.forEach(entity => {
+            entity.show = true;
+          })
+          console.log(22222222)
+          if (datasource.show) {
+            timer += 1
+          }
+        }
+      })
+      if (timer != 2) {
+        console.log('未找到林下参园参shp数据，5s后重试')
+        setTimeout(() => {
+          ShowIframeShp()
+        }, 5000)
+      }
+    }
+  </script>
+</body>
+
+</html>
